@@ -8,19 +8,19 @@ class Review(models.Model):
     """Модель отзывов."""
 
     title = models.IntegerField(verbose_name='Отзыв')
-    title = models.ForeignKey(
-        Title,
-        on_delete=models.CASCADE,
-        related_name='reviews',
-        verbose_name='Отзыв'
-    )
+    # title = models.ForeignKey(
+    #     Title,
+    #     on_delete=models.CASCADE,
+    #     related_name='reviews',
+    #     verbose_name='Отзыв'
+    # )
     author = models.CharField(verbose_name='Автор')
-    author = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='reviews',
-        verbose_name='Автор'
-    )
+    # author = models.ForeignKey(
+    #     User,
+    #     on_delete=models.CASCADE,
+    #     related_name='reviews',
+    #     verbose_name='Автор'
+    # )
     text = models.TextField(verbose_name='Текст Отзыва')
     rating = models.IntegerField(
         verbose_name='Рейтинг',
@@ -55,12 +55,12 @@ class Comment(models.Model):
         verbose_name='комментарии'
     )
     author = models.CharField(verbose_name='Автор')
-    author = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='comments',
-        verbose_name='Автор'
-    )
+    # author = models.ForeignKey(
+    #     User,
+    #     on_delete=models.CASCADE,
+    #     related_name='comments',
+    #     verbose_name='Автор'
+    # )
     text = models.TextField(verbose_name='Текст комментария')
     pub_date = models.DateTimeField(
         auto_now_add=True,
