@@ -5,6 +5,8 @@ from django.db import models
 
 
 class Review(models.Model):
+    """Модель отзывов."""
+
     title = models.IntegerField(verbose_name='Отзыв')
     title = models.ForeignKey(
         Title,
@@ -31,6 +33,9 @@ class Review(models.Model):
         verbose_name='Дата публикации')
 
     class Meta:
+        """Meta модели Reviews.
+           Содержит сортировку,ограничения и verbose_names."""
+
         ordering = ['-pub_date']
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
@@ -41,6 +46,8 @@ class Review(models.Model):
 
 
 class Comment(models.Model):
+    """Модель комментариев к отзывам."""
+
     review = models.ForeignKey(
         Review,
         on_delete=models.CASCADE,
@@ -60,6 +67,9 @@ class Comment(models.Model):
         verbose_name='Дата создания')
 
     class Meta:
+        """Meta модели Comment.
+           Содержит сортировку и verbose_names."""
+
         ordering = ['-pub_date']
         verbose_name = 'Комментарий'
         verbose_name_plural = 'Комментарии'
