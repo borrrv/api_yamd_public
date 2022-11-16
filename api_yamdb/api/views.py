@@ -16,11 +16,17 @@ class CommentViewSet(viewsets.ModelViewSet):
         """Переопределение метода get_queryset для CommenViewSet."""
 
         # Доделать! #############################################
+        # review = get_object_or_404(Review, pk=self.kwargs.get(''))
+        # return review.comments
 
     def perform_create(self, serializer):
         """Переопределение метода create для CommentViewSet."""
 
         # Доделать ##################################
+        # title_id = self.kwargs.get('')
+        # review_id = self.kwargs.get('')
+        # review = get_object_or_404(Review, id=review_id, title=title_id)
+        # serializer.save(author=self.request.user, review=review)
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
@@ -33,8 +39,13 @@ class ReviewViewSet(viewsets.ModelViewSet):
         """Переопределение метода get_queryset для ReviewViewSet."""
 
         # Доделать! #############################################
+        # title = get_object_or_404(Title, pk=self.kwargs.get(''))
+        # return title.reviews
 
     def perform_create(self, serializer):
         """Переопределение метода create для ReviewtViewSet."""
 
         # Доделать ##################################
+        # title_id = self.kwargs.get('')
+        # title = get_object_or_404(Title, id=title_id)
+        # serializer.save(author=self.request.user, title=title)
