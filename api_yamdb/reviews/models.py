@@ -17,7 +17,7 @@ class Category(models.Model):
 
 
 class Title(models.Model):
-   """Модель произведений."""
+    """Модель произведений."""
     name = models.CharField(max_length=100)
     year = models.IntegerField()
     category = models.ForeignKey(
@@ -28,12 +28,9 @@ class Title(models.Model):
         related_name='category',
         verbose_name = 'категория'
     )
-    genres = models.ForeignKey(
+    genres = models.ManyToManyField(
         Genre,
-        null=True,
-        blank=True,
-        related_name='genres',
-        verbose_name = 'жанры'
+        through='GenreTitle'
     )
 
     def __str__(self):
@@ -42,7 +39,11 @@ class Title(models.Model):
 
 class GenreTitle(models.Model):
     """Модель произведение-жанр."""
-    pass
+    title = models.ForeignKey(Title, on_delete=models.CASCADE)
+    genre = models.ForeignKey(
+        Genre,
+        on_delete=models.CASCADE
+    )
 
 
 class Review(models.Model):
