@@ -9,6 +9,9 @@ class Genre(models.Model):
     name = models.CharField(max_length=20)
     slug = models.SlugField(unique=True)
 
+    def __str__(self):
+        return self.name
+
 
 class Category(models.Model):
     """Модель категорий."""
@@ -24,13 +27,17 @@ class Title(models.Model):
         Category,
         on_delete=models.SET_NULL,
         null=True,
-        blank=True,
         related_name='category',
         verbose_name = 'категория'
     )
     genres = models.ManyToManyField(
         Genre,
         through='GenreTitle'
+    )
+    description = models.TextField(
+        null=True,
+        blank=True,
+        verbose_name='описание'
     )
 
     def __str__(self):
@@ -56,7 +63,7 @@ class Review(models.Model):
     #     related_name='reviews',
     #     verbose_name='Отзыв'
     # )
-    author = models.CharField(verbose_name='Автор')
+    author = models.CharField(max_length=100, verbose_name='Автор')
     # author = models.ForeignKey(
     #     User,
     #     on_delete=models.CASCADE,
@@ -96,7 +103,7 @@ class Comment(models.Model):
         related_name='comments',
         verbose_name='комментарии'
     )
-    author = models.CharField(verbose_name='Автор')
+    author = models.CharField(max_length=100, verbose_name='Автор')
     # author = models.ForeignKey(
     #     User,
     #     on_delete=models.CASCADE,

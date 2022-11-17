@@ -1,9 +1,13 @@
 """Write your api app view functions here."""
 
 from rest_framework import viewsets
-from reviews.models import Review
+from reviews.models import Review, Title, Genre
 from django.shortcuts import get_object_or_404
-from .serializers import (CommentSerializer, ReviewSerializer)
+from django_filters.rest_framework import DjangoFilterBackend
+from .serializers import (
+    CommentSerializer, ReviewSerializer,
+    TitleSerializer, GenreSerializer
+)
 
 
 class CommentViewSet(viewsets.ModelViewSet):
@@ -13,7 +17,7 @@ class CommentViewSet(viewsets.ModelViewSet):
     permission_classes = []
 
     def get_queryset(self):
-        """Переопределение метода get_queryset для CommenViewSet."""
+        """Переопределение метода get_queryset для CommentViewSet."""
 
         # Доделать! #############################################
         # review = get_object_or_404(Review, pk=self.kwargs.get(''))
@@ -49,3 +53,24 @@ class ReviewViewSet(viewsets.ModelViewSet):
         # title_id = self.kwargs.get('')
         # title = get_object_or_404(Title, id=title_id)
         # serializer.save(author=self.request.user, title=title)
+
+
+class TitleViewSet(viewsets.ModelViewSet):
+    """Viewset для модели Title."""
+
+    queryset = Title.objects.all()
+    serializer_class = TitleSerializer
+    filter_backends = (DjangoFilterBackend,)
+    filterset_fields = (
+        'category__slug',
+        'genre__slug',
+        'name',
+        'year'
+    )
+
+
+class GenreViewSet(viewsets.ReadOnlyModelViewSet):
+    """Viewset для модели Genre. Только чтение."""
+
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
