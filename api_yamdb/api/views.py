@@ -6,10 +6,9 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
 from rest_framework_simplejwt.tokens import AccessToken
 from rest_framework import viewsets
-from reviews.models import Review
+from reviews.models import Review, User, Title
 from .serializers import (CommentSerializer, ReviewSerializer)
 
-from reviews.models import User
 
 from .serializer import RegistrationSerializer, TokenSerializer
 
@@ -47,7 +46,7 @@ def get_token(request):
         token = AccessToken.for_user(user)
         return Response({'token': (str(token))}, status=HTTP_200_OK)
     return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
-    
+
 
 class CommentViewSet(viewsets.ModelViewSet):
     """Viewset для модели Comment и CommentSerializer."""
@@ -58,18 +57,16 @@ class CommentViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         """Переопределение метода get_queryset для CommenViewSet."""
 
-        # Доделать! #############################################
-        # review = get_object_or_404(Review, pk=self.kwargs.get(''))
-        # return review.comments
+        review = get_object_or_404(Review, pk=self.kwargs.get('review_id'))
+        return review.comments
 
     def perform_create(self, serializer):
         """Переопределение метода create для CommentViewSet."""
 
-        # Доделать ##################################
-        # title_id = self.kwargs.get('')
-        # review_id = self.kwargs.get('')
-        # review = get_object_or_404(Review, id=review_id, title=title_id)
-        # serializer.save(author=self.request.user, review=review)
+        title_id = self.kwargs.get('title_id')
+        review_id = self.kwargs.get('review_id')
+        review = get_object_or_404(Review, id=review_id, title=title_id)
+        serializer.save(author=self.request.user, review=review)
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
@@ -81,9 +78,8 @@ class ReviewViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         """Переопределение метода get_queryset для ReviewViewSet."""
 
-        # Доделать! #############################################
-        # title = get_object_or_404(Title, pk=self.kwargs.get(''))
-        # return title.reviews
+        title = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
+        return title.reviews
 
     def perform_create(self, serializer):
         """Переопределение метода create для ReviewtViewSet."""
