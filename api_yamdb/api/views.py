@@ -1,12 +1,13 @@
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
 from rest_framework_simplejwt.tokens import AccessToken
 from rest_framework import viewsets
-from reviews.models import Review
+from reviews.models import Review, Title
 from django.shortcuts import get_object_or_404
 from .serializers import (
     CommentSerializer, ReviewSerializer,
