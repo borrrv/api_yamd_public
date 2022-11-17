@@ -42,6 +42,48 @@ class User(AbstractUser):
         return self.username
         
 
+class Genre(models.Model):
+    """Модель жанров."""
+    name = models.CharField(max_length=20)
+    slug = models.SlugField(unique=True)
+
+
+class Category(models.Model):
+    """Модель категорий."""
+    name = models.CharField(max_length=20)
+    slug = models.SlugField(unique=True)
+
+
+class Title(models.Model):
+    """Модель произведений."""
+    name = models.CharField(max_length=100)
+    year = models.IntegerField()
+    category = models.ForeignKey(
+        Category,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='category',
+        verbose_name = 'категория'
+    )
+    genres = models.ManyToManyField(
+        Genre,
+        through='GenreTitle'
+    )
+
+    def __str__(self):
+        return self.name
+
+
+class GenreTitle(models.Model):
+    """Модель произведение-жанр."""
+    title = models.ForeignKey(Title, on_delete=models.CASCADE)
+    genre = models.ForeignKey(
+        Genre,
+        on_delete=models.CASCADE
+    )
+
+
 class Review(models.Model):
     """Модель отзывов."""
 

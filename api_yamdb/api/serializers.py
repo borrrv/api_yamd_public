@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from reviews.models import Comment, Review
+from reviews.models import Comment, Review, Title
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -38,3 +38,22 @@ class ReviewSerializer(serializers.ModelSerializer):
 
         fields = ('title', 'author', 'text', 'rating', 'pub_date')
         model = Review
+
+
+class TitleSerializer(serializers.ModelSerializer):
+    """Сериалайзер для модели Title."""
+
+    genre = serializers.ChoiceField()
+    class Meta:
+        fields = ('name', 'year', 'category', 'genre')
+        model = Title
+
+
+class GenreSerializer(serializers.ModelSerializer):
+    """Сериализатор для модели Genre."""
+    pass
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    """Сериализатор для модели Category."""
+    pass
