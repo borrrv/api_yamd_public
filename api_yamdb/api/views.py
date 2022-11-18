@@ -1,16 +1,18 @@
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
+
+from rest_framework import filters
+from rest_framework import viewsets
 from rest_framework.decorators import api_view
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
 from rest_framework_simplejwt.tokens import AccessToken
-from rest_framework import viewsets
-from reviews.models import Review, User, Title
-from .serializers import (CommentSerializer, ReviewSerializer)
-
-
-from .serializer import RegistrationSerializer, TokenSerializer
+from .serializers import (RegistrationSerializer, TokenSerializer,
+                          CommentSerializer, GenreSerializer,
+                          ReviewSerializer, TitleSerializer)
 
 
 @api_view(['POST'])
@@ -55,7 +57,7 @@ class CommentViewSet(viewsets.ModelViewSet):
     permission_classes = []
 
     def get_queryset(self):
-        """Переопределение метода get_queryset для CommenViewSet."""
+        """Переопределение метода get_queryset для CommentViewSet."""
 
         review = get_object_or_404(Review, pk=self.kwargs.get('review_id'))
         return review.comments
@@ -83,7 +85,33 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         """Переопределение метода create для ReviewtViewSet."""
-
+        
         title_id = self.kwargs.get('title_id')
         title = get_object_or_404(Title, id=title_id)
         serializer.save(author=self.request.user, title=title)
+
+
+class TitleViewSet(viewsets.ModelViewSet):
+    """Viewset для модели Title."""
+
+    queryset = Title.objects.all()
+    serializer_class = TitleSerializer
+    filter_backends = (DjangoFilterBackend,)
+    filterset_fields = (
+        'category__slug',
+        # 'genre', - наладить фильтрацию по жанрам
+        'name',
+        'year'
+    )
+
+    permission_classes = (AllowAny,)       
+
+
+class GenreViewSet(viewsets.ModelViewSet):
+    """Viewset для модели Genre. Только чтение."""
+
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name',)
+

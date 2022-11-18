@@ -32,6 +32,7 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ('__all__')
 
 
+
 class CommentSerializer(serializers.ModelSerializer):
     """Сериалайзер для модели Comment."""
 
@@ -78,18 +79,25 @@ class ReviewSerializer(serializers.ModelSerializer):
 class TitleSerializer(serializers.ModelSerializer):
     """Сериалайзер для модели Title."""
 
-    genre = serializers.SlugRelatedField(slug_field='slug',
-                                         many=True,
-                                         queryset=Genre.objects.all())
+    genre = serializers.SlugRelatedField(
+        slug_field='slug',
+        many=True,
+        queryset=Genre.objects.all()
+    )
+
+
 
     class Meta:
-        fields = ('name', 'year', 'category', 'genre')
+        fields = ('name', 'year', 'category', 'genre', 'description')
         model = Title
 
 
 class GenreSerializer(serializers.ModelSerializer):
     """Сериализатор для модели Genre."""
-    pass
+    
+    class Meta:
+        fields = ('name', 'slug')
+        model = Genre
 
 
 class CategorySerializer(serializers.ModelSerializer):
