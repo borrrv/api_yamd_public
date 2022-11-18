@@ -100,7 +100,7 @@ class Review(models.Model):
         verbose_name='Автор'
     )
     text = models.TextField(verbose_name='Текст Отзыва')
-    rating = models.IntegerField(
+    score = models.IntegerField(
         verbose_name='Рейтинг',
         validators=[
             MinValueValidator(1, 'Рейтинг выставляется по 10 бальной шкале.'),

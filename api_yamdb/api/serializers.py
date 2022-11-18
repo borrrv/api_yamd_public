@@ -66,7 +66,7 @@ class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         """Meta настройки сериалайзера для модели Review."""
 
-        fields = ('title', 'author', 'text', 'rating', 'pub_date')
+        fields = ('title', 'author', 'text', 'score', 'pub_date')
         model = Review
         validators = [UniqueTogetherValidator(
             queryset=Review.objects.all(),
