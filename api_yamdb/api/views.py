@@ -19,8 +19,6 @@ from .serializers import (RegistrationSerializer, TokenSerializer,
 from .permissions import IsAdmin
 from reviews.models import User, Review, Title, Genre
 
-from .serializer import RegistrationSerializer, TokenSerializer
-
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
