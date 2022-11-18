@@ -2,21 +2,20 @@ from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
+
+from rest_framework import filters
+from rest_framework import viewsets
 from rest_framework.decorators import api_view
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
 from rest_framework_simplejwt.tokens import AccessToken
-from rest_framework import viewsets
-from reviews.models import Review, Title
-from django.shortcuts import get_object_or_404
-from .serializers import (
-    CommentSerializer, ReviewSerializer,
-    TitleSerializer, GenreSerializer
-)
 
-from reviews.models import User
+from reviews.models import Review, Title, User, Genre
 
 from .serializer import RegistrationSerializer, TokenSerializer
+from .serializers import (CommentSerializer, GenreSerializer, ReviewSerializer,
+                          TitleSerializer)
 
 
 @api_view(['POST'])
@@ -107,14 +106,18 @@ class TitleViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = (
         'category__slug',
-        'genre__slug',
+        # 'genre', - наладить фильтрацию по жанрам
         'name',
         'year'
     )
 
+    permission_classes = (AllowAny,)       
 
-class GenreViewSet(viewsets.ReadOnlyModelViewSet):
+
+class GenreViewSet(viewsets.ModelViewSet):
     """Viewset для модели Genre. Только чтение."""
 
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name',)

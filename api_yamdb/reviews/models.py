@@ -72,11 +72,13 @@ class Title(models.Model):
         Genre,
         through='GenreTitle'
     )
+    '''
     description = models.TextField(
         null=True,
         blank=True,
         verbose_name='описание'
     )
+    '''
 
     def __str__(self):
         return self.name
@@ -87,6 +89,7 @@ class GenreTitle(models.Model):
     title = models.ForeignKey(Title, on_delete=models.CASCADE)
     genre = models.ForeignKey(
         Genre,
+        related_name='genre',
         on_delete=models.CASCADE
     )
 
