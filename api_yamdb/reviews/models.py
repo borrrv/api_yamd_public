@@ -1,21 +1,24 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
+from .validators import username_validate
+
 
 class User(AbstractUser):
-    ADMIN = 'Admin'
-    MODERATOR = 'Moderator'
-    USER = 'User'
+    """Модель пользователя"""
+    ADMIN = 'admin'
+    MODERATOR = 'moderator'
+    USER = 'user'
     ROLES = [
-        (ADMIN, ADMIN),
-        (MODERATOR, MODERATOR),
-        (USER, USER),
+        (ADMIN, 'admin'),
+        (MODERATOR, 'moderator'),
+        (USER, 'user'),
     ]
     bio = models.TextField(
         'Биография',
         blank=True,
     )
-    email = models.EmailField(unique=True)
+    email = models.EmailField(unique=True, blank=False, max_length=254)
     role = models.CharField(
         choices=ROLES,
         default=USER,
@@ -26,10 +29,24 @@ class User(AbstractUser):
         max_length=100,
         null=True,
         unique=True,
+        validators=[username_validate]
     )
 
+    @property
+    def is_user(self):
+        return self.role == 'user'
+
+    @property
+    def is_moderator(self):
+        return self.role == 'moderator'
+
+    @property
+    def is_admin(self):
+        return self.role == 'admin' or self.is_staff
+
     class Meta:
-        ordering = ['id']
+        """Сортировка и проверка на уникальность username и email"""
+        ordering = ['username']
         constraints = [
             models.UniqueConstraint(
                 fields=['username', 'email'],

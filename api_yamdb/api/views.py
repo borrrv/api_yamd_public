@@ -1,25 +1,31 @@
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
-from rest_framework.decorators import api_view
+from rest_framework import viewsets
+from rest_framework.decorators import action, api_view, permission_classes
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
+from rest_framework.status import (HTTP_200_OK, HTTP_400_BAD_REQUEST,
+                                   HTTP_401_UNAUTHORIZED)
 from rest_framework_simplejwt.tokens import AccessToken
-
 from reviews.models import User
 
-from .serializer import RegistrationSerializer, TokenSerializer
+from .permissions import IsAdmin
+from .serializers import (RegistrationSerializer, TokenSerializer,
+                          UserEditSerializer, UserSerializer)
 
 
 @api_view(['POST'])
+@permission_classes([AllowAny])
 def registraions(request):
+    """Регистрация пользователя"""
+    user = request.user
     serializer = RegistrationSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     serializer.save()
-    username = serializer.validated_data['username']
     user = get_object_or_404(
         User,
-        username=username
+        username=serializer.validated_data['username']
     )
     confirmation_code = default_token_generator.make_token(user)
     send_mail(
@@ -32,7 +38,9 @@ def registraions(request):
 
 
 @api_view(['POST'])
+@permission_classes([AllowAny])
 def get_token(request):
+    """Получение токена"""
     serializer = TokenSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     username = serializer.validated_data['username']
@@ -44,3 +52,33 @@ def get_token(request):
         token = AccessToken.for_user(user)
         return Response({'token': (str(token))}, status=HTTP_200_OK)
     return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
+
+
+class UsersViewSet(viewsets.ModelViewSet):
+    lookup_field = 'username'
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = (IsAdmin,)
+
+    @action(
+        methods=['get', 'patch'],
+        detail=False,
+        url_path='me',
+        permission_classes=[IsAuthenticated],
+        serializer_class=UserEditSerializer
+    )
+    def users_me(self, request):
+        user = request.user
+        if request.method == 'GET':
+            serializer = self.get_serializer(user)
+            return Response(serializer.data, status=HTTP_200_OK)
+        if request.method == 'PATCH':
+            serializer = self.get_serializer(
+                user,
+                data=request.data,
+                partial=True,
+            )
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=HTTP_200_OK)
+        return Response(status=HTTP_401_UNAUTHORIZED)
