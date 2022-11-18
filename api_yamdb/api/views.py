@@ -5,25 +5,34 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 from rest_framework import filters
 from rest_framework import viewsets
-from rest_framework.decorators import api_view
-from rest_framework.permissions import AllowAny
+from rest_framework.decorators import action, api_view, permission_classes
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
+from rest_framework.status import (HTTP_200_OK, HTTP_400_BAD_REQUEST,
+                                   HTTP_401_UNAUTHORIZED)
 from rest_framework_simplejwt.tokens import AccessToken
+from rest_framework import viewsets
 from .serializers import (RegistrationSerializer, TokenSerializer,
                           CommentSerializer, GenreSerializer,
-                          ReviewSerializer, TitleSerializer)
+                          ReviewSerializer, TitleSerializer,
+                          UserEditSerializer, UserSerializer)
+from .permissions import IsAdmin
+from reviews.models import User, Review, Title, Genre
+
+from .serializer import RegistrationSerializer, TokenSerializer
 
 
 @api_view(['POST'])
+@permission_classes([AllowAny])
 def registraions(request):
+    """Регистрация пользователя"""
+    user = request.user
     serializer = RegistrationSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     serializer.save()
-    username = serializer.validated_data['username']
     user = get_object_or_404(
         User,
-        username=username
+        username=serializer.validated_data['username']
     )
     confirmation_code = default_token_generator.make_token(user)
     send_mail(
@@ -36,7 +45,9 @@ def registraions(request):
 
 
 @api_view(['POST'])
+@permission_classes([AllowAny])
 def get_token(request):
+    """Получение токена"""
     serializer = TokenSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     username = serializer.validated_data['username']
@@ -48,6 +59,36 @@ def get_token(request):
         token = AccessToken.for_user(user)
         return Response({'token': (str(token))}, status=HTTP_200_OK)
     return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
+
+
+class UsersViewSet(viewsets.ModelViewSet):
+    lookup_field = 'username'
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = (IsAdmin,)
+
+    @action(
+        methods=['get', 'patch'],
+        detail=False,
+        url_path='me',
+        permission_classes=[IsAuthenticated],
+        serializer_class=UserEditSerializer
+    )
+    def users_me(self, request):
+        user = request.user
+        if request.method == 'GET':
+            serializer = self.get_serializer(user)
+            return Response(serializer.data, status=HTTP_200_OK)
+        if request.method == 'PATCH':
+            serializer = self.get_serializer(
+                user,
+                data=request.data,
+                partial=True,
+            )
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=HTTP_200_OK)
+        return Response(status=HTTP_401_UNAUTHORIZED)
 
 
 class CommentViewSet(viewsets.ModelViewSet):
@@ -85,7 +126,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         """Переопределение метода create для ReviewtViewSet."""
-        
+
         title_id = self.kwargs.get('title_id')
         title = get_object_or_404(Title, id=title_id)
         serializer.save(author=self.request.user, title=title)
@@ -104,7 +145,7 @@ class TitleViewSet(viewsets.ModelViewSet):
         'year'
     )
 
-    permission_classes = (AllowAny,)       
+    permission_classes = (AllowAny,)
 
 
 class GenreViewSet(viewsets.ModelViewSet):
@@ -114,4 +155,3 @@ class GenreViewSet(viewsets.ModelViewSet):
     serializer_class = GenreSerializer
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
-
