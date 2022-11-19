@@ -101,8 +101,6 @@ class TitleSerializer(serializers.ModelSerializer):
         queryset=Genre.objects.all()
     )
 
-
-
     class Meta:
         fields = ('name', 'year', 'category', 'genre', 'description')
         model = Title

@@ -89,13 +89,12 @@ class Title(models.Model):
         Genre,
         through='GenreTitle'
     )
-    '''
+
     description = models.TextField(
         null=True,
         blank=True,
         verbose_name='описание'
     )
-    '''
 
     def __str__(self):
         return self.name
