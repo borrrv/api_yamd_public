@@ -11,13 +11,14 @@ from rest_framework.response import Response
 from rest_framework.status import (HTTP_200_OK, HTTP_400_BAD_REQUEST,
                                    HTTP_401_UNAUTHORIZED)
 from rest_framework_simplejwt.tokens import AccessToken
-from rest_framework import viewsets
+from rest_framework import viewsets, mixins
 from .serializers import (RegistrationSerializer, TokenSerializer,
                           CommentSerializer, GenreSerializer,
                           ReviewSerializer, TitleSerializer,
-                          UserEditSerializer, UserSerializer)
+                          UserEditSerializer, UserSerializer,
+                          CategorySerializer)
 from .permissions import IsAdmin
-from reviews.models import User, Review, Title, Genre
+from reviews.models import User, Review, Title, Genre, Category
 
 
 @api_view(['POST'])
@@ -146,10 +147,28 @@ class TitleViewSet(viewsets.ModelViewSet):
     permission_classes = (AllowAny,)
 
 
-class GenreViewSet(viewsets.ModelViewSet):
-    """Viewset для модели Genre. Только чтение."""
+class ListReadCreateDestroy(mixins.ListModelMixin, mixins.CreateModelMixin,
+                            mixins.DestroyModelMixin, viewsets.GenericViewSet):
+    """Базовый viewset для GET, POST, DELETE."""
+    pass
+
+
+class GenreViewSet(ListReadCreateDestroy):
+    """Viewset для модели Genre."""
 
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
+    lookup_field = 'slug'
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name',)
+
+
+class CategoriesViewSet(ListReadCreateDestroy):
+    """Viewset для модели Category."""
+
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = (AllowAny,)
+    lookup_field = 'slug'
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)

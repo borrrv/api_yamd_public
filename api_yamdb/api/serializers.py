@@ -1,4 +1,5 @@
-from reviews.models import Comment, Review, Title, Genre, User
+import re
+from reviews.models import Comment, Review, Title, Genre, User, Category
 from rest_framework.validators import UniqueTogetherValidator, UniqueValidator
 from rest_framework import serializers
 
@@ -102,7 +103,6 @@ class TitleSerializer(serializers.ModelSerializer):
     )
 
 
-
     class Meta:
         fields = ('name', 'year', 'category', 'genre', 'description')
         model = Title
@@ -118,4 +118,14 @@ class GenreSerializer(serializers.ModelSerializer):
 
 class CategorySerializer(serializers.ModelSerializer):
     """Сериализатор для модели Category."""
-    pass
+
+    class Meta:
+        fields = ('name', 'slug')
+        model = Category
+    
+    '''
+    def validate_slug(self, value):
+        if re.fullmatch(r'^[-a-zA-Z0-9_]+$', value):
+            raise serializers.ValidationError('Поле slug должно сотоять из букв и цифр!')
+        return value
+    '''
