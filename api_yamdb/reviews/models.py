@@ -7,6 +7,7 @@ from .validators import username_validate
 
 class User(AbstractUser):
     """Модель пользователя"""
+
     ADMIN = 'admin'
     MODERATOR = 'moderator'
     USER = 'user'
@@ -61,6 +62,7 @@ class User(AbstractUser):
 
 class Genre(models.Model):
     """Модель жанров."""
+
     name = models.CharField(max_length=20)
     slug = models.SlugField(unique=True)
 
@@ -70,12 +72,14 @@ class Genre(models.Model):
 
 class Category(models.Model):
     """Модель категорий."""
+
     name = models.CharField(max_length=20)
     slug = models.SlugField(unique=True)
 
 
 class Title(models.Model):
     """Модель произведений."""
+
     name = models.CharField(max_length=100)
     year = models.IntegerField()
     category = models.ForeignKey(
@@ -102,6 +106,7 @@ class Title(models.Model):
 
 class GenreTitle(models.Model):
     """Модель произведение-жанр."""
+
     title = models.ForeignKey(Title, on_delete=models.CASCADE)
     genre = models.ForeignKey(
         Genre,
