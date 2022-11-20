@@ -29,8 +29,7 @@ class User(AbstractUser):
         'Имя пользователя',
         max_length=100,
         null=True,
-        unique=True,
-        validators=[username_validate]
+        unique=True
     )
 
     @property
