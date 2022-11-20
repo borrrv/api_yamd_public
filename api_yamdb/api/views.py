@@ -16,7 +16,7 @@ from .serializers import (RegistrationSerializer, TokenSerializer,
                           CommentSerializer, GenreSerializer,
                           ReviewSerializer, TitleSerializer,
                           UserEditSerializer, UserSerializer,
-                          CategorySerializer)
+                          CategorySerializer, TitleListSerializer)
 from .permissions import IsAdmin
 from reviews.models import User, Review, Title, Genre, Category
 
@@ -139,12 +139,17 @@ class TitleViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = (
         'category__slug',
-        # 'genre', - наладить фильтрацию по жанрам
+        'genres__slug',
         'name',
         'year'
     )
 
-    permission_classes = (AllowAny,)
+    permission_classes = ()
+
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return TitleListSerializer
+        return TitleSerializer
 
 
 class ListReadCreateDestroy(mixins.ListModelMixin, mixins.CreateModelMixin,
@@ -160,6 +165,7 @@ class GenreViewSet(ListReadCreateDestroy):
     serializer_class = GenreSerializer
     lookup_field = 'slug'
     filter_backends = (filters.SearchFilter,)
+    permission_classes = ()
     search_fields = ('name',)
 
 
@@ -168,7 +174,7 @@ class CategoriesViewSet(ListReadCreateDestroy):
 
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = (AllowAny,)
+    permission_classes = ()
     lookup_field = 'slug'
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)

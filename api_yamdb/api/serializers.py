@@ -1,5 +1,6 @@
-import re
-from reviews.models import Comment, Review, Title, Genre, User, Category
+import datetime as dt
+from django.shortcuts import get_object_or_404
+from reviews.models import Comment, Review, Title, Genre, User, Category, GenreTitle
 from rest_framework.validators import UniqueTogetherValidator, UniqueValidator
 from rest_framework import serializers
 
@@ -96,15 +97,40 @@ class ReviewSerializer(serializers.ModelSerializer):
 class TitleSerializer(serializers.ModelSerializer):
     """Сериалайзер для модели Title."""
 
-    genre = serializers.SlugRelatedField(
+    genres = serializers.SlugRelatedField(
         slug_field='slug',
         many=True,
         queryset=Genre.objects.all()
     )
+    category = serializers.SlugRelatedField(
+        slug_field='slug',
+        queryset=Category.objects.all()
+    )
 
 
     class Meta:
-        fields = ('name', 'year', 'category', 'genre', 'description')
+        fields = ('id', 'name', 'year', 'category',
+                  'genres', 'description')
+        model = Title
+        validators = [
+            UniqueTogetherValidator(
+                queryset=Title.objects.all(),
+                fields=('name', 'year')
+            )
+        ]
+
+    def validate_year(self, value):
+        year = dt.date.today().year
+        if year < value:
+            raise serializers.ValidationError('Проверьте год!')
+        return value
+
+
+class TitleListSerializer(serializers.ModelSerializer):
+    """Serializer для модели Title для отображения списком."""
+
+    class Meta:
+        fields = ('id', 'name')
         model = Title
 
 
