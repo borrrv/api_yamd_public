@@ -56,25 +56,74 @@ class User(AbstractUser):
         return self.username
 
 
+class Genre(models.Model):
+    """Модель жанров."""
+    name = models.CharField(max_length=20)
+    slug = models.SlugField(unique=True)
+
+    def __str__(self):
+        return self.name
+
+
+class Category(models.Model):
+    """Модель категорий."""
+    name = models.CharField(max_length=20)
+    slug = models.SlugField(unique=True)
+
+
+class Title(models.Model):
+    """Модель произведений."""
+    name = models.CharField(max_length=100)
+    year = models.IntegerField()
+    category = models.ForeignKey(
+        Category,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='category',
+        verbose_name='категория'
+    )
+    genres = models.ManyToManyField(
+        Genre,
+        through='GenreTitle'
+    )
+    '''
+    description = models.TextField(
+        null=True,
+        blank=True,
+        verbose_name='описание'
+    )
+    '''
+
+    def __str__(self):
+        return self.name
+
+
+class GenreTitle(models.Model):
+    """Модель произведение-жанр."""
+    title = models.ForeignKey(Title, on_delete=models.CASCADE)
+    genre = models.ForeignKey(
+        Genre,
+        related_name='genre',
+        on_delete=models.CASCADE
+ 
+
 class Review(models.Model):
     """Модель отзывов."""
 
-    title = models.IntegerField(verbose_name='Отзыв')
-    # title = models.ForeignKey(
-    #     Title,
-    #     on_delete=models.CASCADE,
-    #     related_name='reviews',
-    #     verbose_name='Отзыв'
-    # )
-    author = models.CharField(verbose_name='Автор', max_length=30)
-    # author = models.ForeignKey(
-    #     User,
-    #     on_delete=models.CASCADE,
-    #     related_name='reviews',
-    #     verbose_name='Автор'
-    # )
+    title = models.ForeignKey(
+        Title,
+        on_delete=models.CASCADE,
+        related_name='reviews',
+        verbose_name='Отзыв'
+    )
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='reviews',
+        verbose_name='Автор'
+    )
     text = models.TextField(verbose_name='Текст Отзыва')
-    rating = models.IntegerField(
+    score = models.IntegerField(
         verbose_name='Рейтинг',
         validators=[
             MinValueValidator(1, 'Рейтинг выставляется по 10 бальной шкале.'),
@@ -106,13 +155,12 @@ class Comment(models.Model):
         related_name='comments',
         verbose_name='комментарии'
     )
-    author = models.CharField(verbose_name='Автор', max_length=30)
-    # author = models.ForeignKey(
-    #     User,
-    #     on_delete=models.CASCADE,
-    #     related_name='comments',
-    #     verbose_name='Автор'
-    # )
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='comments',
+        verbose_name='Автор'
+    )
     text = models.TextField(verbose_name='Текст комментария')
     pub_date = models.DateTimeField(
         auto_now_add=True,

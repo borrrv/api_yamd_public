@@ -1,6 +1,6 @@
+from reviews.models import Comment, Review, Title, Genre, User
+from rest_framework.validators import UniqueTogetherValidator, UniqueValidator
 from rest_framework import serializers
-from rest_framework.validators import UniqueValidator
-from reviews.models import User, Comment, Review
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
@@ -83,5 +83,39 @@ class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         """Meta настройки сериалайзера для модели Review."""
 
-        fields = ('title', 'author', 'text', 'rating', 'pub_date')
+        fields = ('title', 'author', 'text', 'score', 'pub_date')
         model = Review
+        validators = [UniqueTogetherValidator(
+            queryset=Review.objects.all(),
+            fields=['title', 'author'],
+            message='Отзыв уже написан.'
+        )]
+
+
+class TitleSerializer(serializers.ModelSerializer):
+    """Сериалайзер для модели Title."""
+
+    genre = serializers.SlugRelatedField(
+        slug_field='slug',
+        many=True,
+        queryset=Genre.objects.all()
+    )
+
+
+
+    class Meta:
+        fields = ('name', 'year', 'category', 'genre', 'description')
+        model = Title
+
+
+class GenreSerializer(serializers.ModelSerializer):
+    """Сериализатор для модели Genre."""
+
+    class Meta:
+        fields = ('name', 'slug')
+        model = Genre
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    """Сериализатор для модели Category."""
+    pass
