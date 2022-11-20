@@ -4,12 +4,12 @@ from reviews.models import Genre, Title, Category, Review, GenreTitle, User
 
 
 MODELS_FILES = {
-        Genre: 'static/data/genre.csv',
-        Category: 'static/data/category.csv',
-        Title: 'static/data/titles.csv',
-        Review: 'static/data/review.csv',
-        GenreTitle: 'static/data/genre_title.csv',
-        User: 'static/data/users.csv'
+    Genre: 'static/data/genre.csv',
+    Category: 'static/data/category.csv',
+    Title: 'static/data/titles.csv',
+    Review: 'static/data/review.csv',
+    GenreTitle: 'static/data/genre_title.csv',
+    User: 'static/data/users.csv'
     }
 
 
