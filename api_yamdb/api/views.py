@@ -136,7 +136,8 @@ class ReviewViewSet(viewsets.ModelViewSet):
 class TitleViewSet(viewsets.ModelViewSet):
     """Viewset для модели Title."""
 
-    queryset = Title.objects.all()
+    queryset = (Title.objects.all().annotate(_rating=Avg('reviews__score'))
+                .order_by('name'))
     serializer_class = TitleSerializer
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = (
@@ -147,9 +148,6 @@ class TitleViewSet(viewsets.ModelViewSet):
     )
 
     permission_classes = (AdminOrReadOnly,)
-
-    def get_queryset(self):
-        return Title.objects.all().annotate(_rating=Avg('reviews__score'))
 
     def get_serializer_class(self):
         if self.action == 'list':
