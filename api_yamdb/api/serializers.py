@@ -103,9 +103,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 class TitleSerializer(serializers.ModelSerializer):
     """Сериалайзер для модели Title."""
 
-    rating = serializers.SerializerMethodField()
-
-    genres = serializers.SlugRelatedField(
+    genre = serializers.SlugRelatedField(
         slug_field='slug',
         many=True,
         queryset=Genre.objects.all()
@@ -121,7 +119,7 @@ class TitleSerializer(serializers.ModelSerializer):
 
     class Meta:
         fields = ('id', 'name', 'year', 'category',
-                  'genres', 'description', 'rating')
+                  'genre', 'description', 'rating')
         model = Title
         validators = [
             UniqueTogetherValidator(
@@ -138,14 +136,6 @@ class TitleSerializer(serializers.ModelSerializer):
 
     def get_rating(self, obj):
         return obj.rating
-
-
-class TitleListSerializer(serializers.ModelSerializer):
-    """Serializer для модели Title для отображения списком."""
-
-    class Meta:
-        fields = ('id', 'name')
-        model = Title
 
 
 class GenreSerializer(serializers.ModelSerializer):
@@ -169,3 +159,19 @@ class CategorySerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('Поле slug должно сотоять из букв и цифр!')
         return value
     '''
+
+
+class TitleListSerializer(serializers.ModelSerializer):
+    """Serializer для модели Title для отображения списком."""
+
+    genre = GenreSerializer(many=True)
+    category = CategorySerializer()
+    rating = serializers.SerializerMethodField()
+
+    def get_rating(self, obj):
+        return obj.rating
+
+    class Meta:
+        fields = ('id', 'name', 'year', 'rating',
+                  'description', 'genre', 'category')
+        model = Title

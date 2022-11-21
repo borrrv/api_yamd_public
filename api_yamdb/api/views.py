@@ -21,6 +21,7 @@ from .serializers import (RegistrationSerializer, TokenSerializer,
 from .permissions import (IsAdmin, AdminOrReadOnly,
                           IsAdminOrModeratorOrOwnerOrReadOnly)
 from reviews.models import User, Review, Title, Genre, Category
+from .filters import TitleFilter
 
 
 @api_view(['POST'])
@@ -140,12 +141,7 @@ class TitleViewSet(viewsets.ModelViewSet):
                 .order_by('name'))
     serializer_class = TitleSerializer
     filter_backends = (DjangoFilterBackend,)
-    filterset_fields = (
-        'category__slug',
-        'genres__slug',
-        'name',
-        'year'
-    )
+    filterset_class = TitleFilter
 
     permission_classes = (AdminOrReadOnly,)
 
