@@ -2,8 +2,6 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
 
-from .validators import username_validate
-
 
 class User(AbstractUser):
     """Модель пользователя"""
@@ -30,8 +28,7 @@ class User(AbstractUser):
         'Имя пользователя',
         max_length=100,
         null=True,
-        unique=True,
-        validators=[username_validate]
+        unique=True
     )
 
     @property
@@ -112,8 +109,7 @@ class GenreTitle(models.Model):
         Genre,
         related_name='genre',
         on_delete=models.CASCADE
-    )
-
+ 
 
 class Review(models.Model):
     """Модель отзывов."""

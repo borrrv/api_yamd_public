@@ -10,10 +10,10 @@ class RegistrationSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(
         validators=[UniqueValidator(queryset=User.objects.all())])
 
-    def username_validate(self, value):
+    def validate_username(self, value):
         username = value.lower()
-        if value == 'me':
-            raise serializers.ValidationError(f'Недопустимо имя {username}')
+        if username == 'me':
+            raise serializers.ValidationError(f"Недопустимо имя '{username}'")
         return value
 
     class Meta:
