@@ -1,16 +1,17 @@
 from django.core.management.base import BaseCommand, CommandError
 import csv
-from reviews.models import Genre, Title, Category, Review, GenreTitle, User
+from reviews.models import Genre, Title, Category, Review, GenreTitle, User, Comment
 
 
 MODELS_FILES = {
+    User: 'static/data/users.csv',
     Genre: 'static/data/genre.csv',
     Category: 'static/data/category.csv',
     Title: 'static/data/titles.csv',
     Review: 'static/data/review.csv',
     GenreTitle: 'static/data/genre_title.csv',
-    User: 'static/data/users.csv'
-    }
+    Comment: 'static/data/comments.csv'
+}
 
 
 class Command(BaseCommand):

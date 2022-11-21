@@ -17,7 +17,8 @@ from .serializers import (RegistrationSerializer, TokenSerializer,
                           ReviewSerializer, TitleSerializer,
                           UserEditSerializer, UserSerializer,
                           CategorySerializer, TitleListSerializer)
-from .permissions import IsAdmin, IsAdminOrModeratorOrOwnerOrReadOnly
+from .permissions import (IsAdmin, AdminOrReadOnly,
+                          IsAdminOrModeratorOrOwnerOrReadOnly)
 from reviews.models import User, Review, Title, Genre, Category
 
 
@@ -107,7 +108,7 @@ class CommentViewSet(viewsets.ModelViewSet):
 
         title_id = self.kwargs.get('title_id')
         review_id = self.kwargs.get('review_id')
-        review = get_object_or_404(Review, id=review_id, title=title_id)
+        review = get_object_or_404(Review, pk=review_id, title=title_id)
         serializer.save(author=self.request.user, review=review)
 
 
@@ -120,14 +121,14 @@ class ReviewViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         """Переопределение метода get_queryset для ReviewViewSet."""
 
-        title = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
+        title = get_object_or_404(Title, pk=self.kwargs.get("title_id"))
         return title.reviews.all()
 
     def perform_create(self, serializer):
         """Переопределение метода create для ReviewtViewSet."""
 
         title_id = self.kwargs.get('title_id')
-        title = get_object_or_404(Title, id=title_id)
+        title = get_object_or_404(Title, pk=title_id)
         serializer.save(author=self.request.user, title=title)
 
 
@@ -144,7 +145,7 @@ class TitleViewSet(viewsets.ModelViewSet):
         'year'
     )
 
-    permission_classes = ()
+    permission_classes = (AdminOrReadOnly,)
 
     def get_serializer_class(self):
         if self.action == 'list':
@@ -165,7 +166,7 @@ class GenreViewSet(ListReadCreateDestroy):
     serializer_class = GenreSerializer
     lookup_field = 'slug'
     filter_backends = (filters.SearchFilter,)
-    permission_classes = ()
+    permission_classes = (AdminOrReadOnly,)
     search_fields = ('name',)
 
 
@@ -174,7 +175,7 @@ class CategoriesViewSet(ListReadCreateDestroy):
 
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = ()
+    permission_classes = (AdminOrReadOnly,)
     lookup_field = 'slug'
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)

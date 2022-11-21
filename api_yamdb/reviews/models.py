@@ -77,7 +77,6 @@ class Category(models.Model):
         return self.name
 
 
-
 class Title(models.Model):
     """Модель произведений."""
 
@@ -100,7 +99,6 @@ class Title(models.Model):
         verbose_name='описание'
     )
 
-
     class Meta:
         constraints = [
             models.UniqueConstraint(
@@ -121,7 +119,8 @@ class GenreTitle(models.Model):
         Genre,
         related_name='genre',
         on_delete=models.CASCADE
- 
+    )
+
 
 class Review(models.Model):
     """Модель отзывов."""
