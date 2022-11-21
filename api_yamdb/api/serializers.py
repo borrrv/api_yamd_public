@@ -54,10 +54,8 @@ class CommentSerializer(serializers.ModelSerializer):
 
     author = serializers.SlugRelatedField(slug_field='username',
                                           read_only=True)
-    review = serializers.SlugRelatedField(
-        slug_field='text',
-        read_only=True
-    )
+    review = serializers.SlugRelatedField(slug_field='text',
+                                          read_only=True)
 
     class Meta:
         """Meta настройки сериалайзера для модели Comment."""
@@ -70,7 +68,7 @@ class ReviewSerializer(serializers.ModelSerializer):
     """Сериалайзер для модели Review."""
 
     title = serializers.SlugRelatedField(
-        slug_field='title',
+        slug_field='name',
         read_only=True,
     )
 
@@ -100,8 +98,6 @@ class TitleSerializer(serializers.ModelSerializer):
         many=True,
         queryset=Genre.objects.all()
     )
-
-
 
     class Meta:
         fields = ('name', 'year', 'category', 'genre', 'description')
