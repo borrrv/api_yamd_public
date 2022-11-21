@@ -1,7 +1,7 @@
 import datetime as dt
 from django.shortcuts import get_object_or_404
 from reviews.models import (Comment, Review, Title, Genre,
-                            User, Category, GenreTitle)
+                            User, Category)
 from rest_framework.validators import UniqueTogetherValidator, UniqueValidator
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
