@@ -121,7 +121,8 @@ class GenreTitle(models.Model):
         Genre,
         related_name='genre',
         on_delete=models.CASCADE
- 
+    )
+
 
 class Review(models.Model):
     """Модель отзывов."""

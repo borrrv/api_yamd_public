@@ -13,6 +13,7 @@ class AdminOrReadOnly(permissions.BasePermission):
                 request.user.is_authenticated and (
                     request.user.is_admin or request.user.is_superuser)))
 
+
 class IsAdminOrModeratorOrOwnerOrReadOnly(permissions.BasePermission):
     """Разрешение для отзывов и комментариев.
        изменять данные может админ, модератор или автор.
@@ -34,4 +35,3 @@ class IsAdminOrModeratorOrOwnerOrReadOnly(permissions.BasePermission):
         return (
             request.method in permissions.SAFE_METHODS
             or request.user.is_authenticated)
-
