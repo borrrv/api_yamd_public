@@ -12,10 +12,10 @@ class RegistrationSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(
         validators=[UniqueValidator(queryset=User.objects.all())])
 
-    def username_validate(self, value):
+    def validate_username(self, value):
         username = value.lower()
-        if value == 'me':
-            raise serializers.ValidationError(f'Недопустимо имя {username}')
+        if username == 'me':
+            raise serializers.ValidationError(f"Недопустимо имя '{username}'")
         return value
 
     class Meta:
@@ -56,10 +56,8 @@ class CommentSerializer(serializers.ModelSerializer):
 
     author = serializers.SlugRelatedField(slug_field='username',
                                           read_only=True)
-    review = serializers.SlugRelatedField(
-        slug_field='text',
-        read_only=True
-    )
+    review = serializers.SlugRelatedField(slug_field='text',
+                                          read_only=True)
 
     class Meta:
         """Meta настройки сериалайзера для модели Comment."""
@@ -72,7 +70,7 @@ class ReviewSerializer(serializers.ModelSerializer):
     """Сериалайзер для модели Review."""
 
     title = serializers.SlugRelatedField(
-        slug_field='title',
+        slug_field='name',
         read_only=True,
     )
 
@@ -106,7 +104,6 @@ class TitleSerializer(serializers.ModelSerializer):
         slug_field='slug',
         queryset=Category.objects.all()
     )
-
 
     class Meta:
         fields = ('id', 'name', 'year', 'category',
