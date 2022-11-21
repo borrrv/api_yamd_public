@@ -121,7 +121,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         """Переопределение метода get_queryset для ReviewViewSet."""
 
-        title = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
+        title = get_object_or_404(Title, pk=self.kwargs.get("title_id"))
         return title.reviews.all()
 
     def perform_create(self, serializer):

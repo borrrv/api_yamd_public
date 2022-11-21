@@ -71,7 +71,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 
     title = serializers.SlugRelatedField(
         slug_field='name',
-        read_only=True,
+        read_only=True
     )
 
     author = serializers.SlugRelatedField(
@@ -145,7 +145,7 @@ class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('name', 'slug')
         model = Category
-    
+
     '''
     def validate_slug(self, value):
         if re.fullmatch(r'^[-a-zA-Z0-9_]+$', value):
