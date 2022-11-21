@@ -70,8 +70,12 @@ class Genre(models.Model):
 class Category(models.Model):
     """Модель категорий."""
 
-    name = models.CharField(max_length=20)
-    slug = models.SlugField(unique=True)
+    name = models.CharField(max_length=256)
+    slug = models.SlugField(unique=True, max_length=50)
+
+    def __str__(self):
+        return self.name
+
 
 
 class Title(models.Model):
@@ -90,12 +94,20 @@ class Title(models.Model):
         Genre,
         through='GenreTitle'
     )
-
     description = models.TextField(
         null=True,
         blank=True,
         verbose_name='описание'
     )
+
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['name', 'year'],
+                name='unique_name_year'
+            )
+        ]
 
     def __str__(self):
         return self.name
