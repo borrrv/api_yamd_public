@@ -2,6 +2,7 @@ from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
+from django.db.models import Avg
 
 from rest_framework import filters
 from rest_framework import viewsets
@@ -135,7 +136,8 @@ class ReviewViewSet(viewsets.ModelViewSet):
 class TitleViewSet(viewsets.ModelViewSet):
     """Viewset для модели Title."""
 
-    queryset = Title.objects.all()
+    queryset = (Title.objects.all().annotate(_rating=Avg('reviews__score'))
+                .order_by('name'))
     serializer_class = TitleSerializer
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = (
