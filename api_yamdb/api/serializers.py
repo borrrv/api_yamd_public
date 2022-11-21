@@ -1,8 +1,10 @@
 import datetime as dt
 from django.shortcuts import get_object_or_404
-from reviews.models import Comment, Review, Title, Genre, User, Category, GenreTitle
+from reviews.models import (Comment, Review, Title, Genre,
+                            User, Category, GenreTitle)
 from rest_framework.validators import UniqueTogetherValidator, UniqueValidator
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
@@ -62,7 +64,7 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         """Meta настройки сериалайзера для модели Comment."""
 
-        fields = ('review', 'author', 'text', 'pub_date')
+        fields = ('review', 'author', 'text', 'pub_date', 'id')
         model = Comment
 
 
@@ -80,16 +82,22 @@ class ReviewSerializer(serializers.ModelSerializer):
         read_only=True
     )
 
+    def validate(self, data):
+        request = self.context['request']
+        author = request.user
+        title_id = self.context['view'].kwargs.get('title_id')
+        title = get_object_or_404(Title, pk=title_id)
+        if request.method == 'POST':
+            if Review.objects.filter(title=title, author=author).exists():
+                raise ValidationError('Вы не можете добавлять несколько '
+                                      'отзывов на произведение')
+        return data
+
     class Meta:
         """Meta настройки сериалайзера для модели Review."""
 
-        fields = ('title', 'author', 'text', 'score', 'pub_date')
+        fields = ('title', 'author', 'text', 'score', 'pub_date', 'id')
         model = Review
-        validators = [UniqueTogetherValidator(
-            queryset=Review.objects.all(),
-            fields=['title', 'author'],
-            message='Отзыв уже написан.'
-        )]
 
 
 class TitleSerializer(serializers.ModelSerializer):

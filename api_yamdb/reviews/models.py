@@ -77,7 +77,6 @@ class Category(models.Model):
         return self.name
 
 
-
 class Title(models.Model):
     """Модель произведений."""
 
@@ -99,7 +98,6 @@ class Title(models.Model):
         blank=True,
         verbose_name='описание'
     )
-
 
     class Meta:
         constraints = [

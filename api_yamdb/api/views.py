@@ -108,7 +108,7 @@ class CommentViewSet(viewsets.ModelViewSet):
 
         title_id = self.kwargs.get('title_id')
         review_id = self.kwargs.get('review_id')
-        review = get_object_or_404(Review, id=review_id, title=title_id)
+        review = get_object_or_404(Review, pk=review_id, title=title_id)
         serializer.save(author=self.request.user, review=review)
 
 
@@ -128,7 +128,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
         """Переопределение метода create для ReviewtViewSet."""
 
         title_id = self.kwargs.get('title_id')
-        title = get_object_or_404(Title, id=title_id)
+        title = get_object_or_404(Title, pk=title_id)
         serializer.save(author=self.request.user, title=title)
 
 
