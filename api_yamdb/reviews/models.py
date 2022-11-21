@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.db.models import Avg
 from django.core.validators import MaxValueValidator, MinValueValidator
 
 
@@ -100,6 +101,8 @@ class Title(models.Model):
     )
 
     class Meta:
+        verbose_name = 'Произведение'
+        verbose_name_plural = 'Произведения'
         constraints = [
             models.UniqueConstraint(
                 fields=['name', 'year'],
@@ -109,6 +112,10 @@ class Title(models.Model):
 
     def __str__(self):
         return self.name
+
+    @property
+    def rating(self):
+        return self.reviews.aggregate(Avg('score'))['score__avg']
 
 
 class GenreTitle(models.Model):

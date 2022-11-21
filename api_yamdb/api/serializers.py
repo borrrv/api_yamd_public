@@ -103,6 +103,8 @@ class ReviewSerializer(serializers.ModelSerializer):
 class TitleSerializer(serializers.ModelSerializer):
     """Сериалайзер для модели Title."""
 
+    rating = serializers.SerializerMethodField()
+
     genres = serializers.SlugRelatedField(
         slug_field='slug',
         many=True,
@@ -112,10 +114,14 @@ class TitleSerializer(serializers.ModelSerializer):
         slug_field='slug',
         queryset=Category.objects.all()
     )
+    rating = serializers.SerializerMethodField()
+
+    def get_rating(self, obj):
+        return obj.rating
 
     class Meta:
         fields = ('id', 'name', 'year', 'category',
-                  'genres', 'description')
+                  'genres', 'description', 'rating')
         model = Title
         validators = [
             UniqueTogetherValidator(
@@ -129,6 +135,9 @@ class TitleSerializer(serializers.ModelSerializer):
         if year < value:
             raise serializers.ValidationError('Проверьте год!')
         return value
+
+    def get_rating(self, obj):
+        return obj.rating
 
 
 class TitleListSerializer(serializers.ModelSerializer):
