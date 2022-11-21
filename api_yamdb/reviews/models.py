@@ -5,6 +5,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 
 class User(AbstractUser):
     """Модель пользователя"""
+
     ADMIN = 'admin'
     MODERATOR = 'moderator'
     USER = 'user'
@@ -58,6 +59,7 @@ class User(AbstractUser):
 
 class Genre(models.Model):
     """Модель жанров."""
+
     name = models.CharField(max_length=20)
     slug = models.SlugField(unique=True)
 
@@ -67,12 +69,14 @@ class Genre(models.Model):
 
 class Category(models.Model):
     """Модель категорий."""
+
     name = models.CharField(max_length=20)
     slug = models.SlugField(unique=True)
 
 
 class Title(models.Model):
     """Модель произведений."""
+
     name = models.CharField(max_length=100)
     year = models.IntegerField()
     category = models.ForeignKey(
@@ -86,13 +90,12 @@ class Title(models.Model):
         Genre,
         through='GenreTitle'
     )
-    '''
+
     description = models.TextField(
         null=True,
         blank=True,
         verbose_name='описание'
     )
-    '''
 
     def __str__(self):
         return self.name
@@ -100,6 +103,7 @@ class Title(models.Model):
 
 class GenreTitle(models.Model):
     """Модель произведение-жанр."""
+
     title = models.ForeignKey(Title, on_delete=models.CASCADE)
     genre = models.ForeignKey(
         Genre,

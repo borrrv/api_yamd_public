@@ -16,7 +16,7 @@ from .serializers import (RegistrationSerializer, TokenSerializer,
                           CommentSerializer, GenreSerializer,
                           ReviewSerializer, TitleSerializer,
                           UserEditSerializer, UserSerializer)
-from .permissions import IsAdmin
+from .permissions import IsAdmin, IsAdminOrModeratorOrOwnerOrReadOnly
 from reviews.models import User, Review, Title, Genre
 
 
@@ -93,13 +93,13 @@ class CommentViewSet(viewsets.ModelViewSet):
     """Viewset для модели Comment и CommentSerializer."""
 
     serializer_class = CommentSerializer
-    permission_classes = []
+    permission_classes = [IsAdminOrModeratorOrOwnerOrReadOnly]
 
     def get_queryset(self):
         """Переопределение метода get_queryset для CommentViewSet."""
 
         review = get_object_or_404(Review, pk=self.kwargs.get('review_id'))
-        return review.comments
+        return review.comments.all()
 
     def perform_create(self, serializer):
         """Переопределение метода create для CommentViewSet."""
@@ -114,13 +114,13 @@ class ReviewViewSet(viewsets.ModelViewSet):
     """Viewset для модели Review и ReviewSerializer."""
 
     serializer_class = ReviewSerializer
-    permission_classes = []
+    permission_classes = [IsAdminOrModeratorOrOwnerOrReadOnly]
 
     def get_queryset(self):
         """Переопределение метода get_queryset для ReviewViewSet."""
 
         title = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
-        return title.reviews
+        return title.reviews.all()
 
     def perform_create(self, serializer):
         """Переопределение метода create для ReviewtViewSet."""
