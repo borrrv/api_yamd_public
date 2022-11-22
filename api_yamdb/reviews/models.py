@@ -2,6 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.db.models import Avg
 from django.core.validators import MaxValueValidator, MinValueValidator
+from django.db.models import IntegerField
 
 
 class User(AbstractUser):
@@ -45,7 +46,8 @@ class User(AbstractUser):
         return self.role == 'admin' or self.is_staff
 
     class Meta:
-        """Сортировка и проверка на уникальность username и email"""
+        """Сортировка и проверка на уникальность username и email."""
+
         ordering = ['username']
         constraints = [
             models.UniqueConstraint(
@@ -55,6 +57,7 @@ class User(AbstractUser):
         ]
 
     def __str__(self):
+        """Метод str модели User."""
         return self.username
 
 
@@ -65,9 +68,12 @@ class Genre(models.Model):
     slug = models.SlugField(unique=True)
 
     def __str__(self):
+        """Метод str модели Genre."""
         return self.name
 
     class Meta:
+        """Meta настройки модели Genre."""
+
         verbose_name = 'Жанр'
         verbose_name_plural = 'Жанры'
         ordering = ['name']
@@ -80,9 +86,11 @@ class Category(models.Model):
     slug = models.SlugField(unique=True, max_length=50)
 
     def __str__(self):
+        """Метод str модели Category."""
         return self.name
 
     class Meta:
+        """Meta настройки модели Category."""
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
         ordering = ['name']
@@ -100,7 +108,7 @@ class Title(models.Model):
         related_name='category',
         verbose_name='категория'
     )
-    genres = models.ManyToManyField(
+    genre = models.ManyToManyField(
         Genre,
         through='GenreTitle'
     )
@@ -111,6 +119,8 @@ class Title(models.Model):
     )
 
     class Meta:
+        """Meta настройки модели Title."""
+
         verbose_name = 'Произведение'
         verbose_name_plural = 'Произведения'
         constraints = [
@@ -121,11 +131,14 @@ class Title(models.Model):
         ]
 
     def __str__(self):
+        """Метод str модели Title."""
         return self.name
 
     @property
     def rating(self):
-        return self.reviews.aggregate(Avg('score'))['score__avg']
+        """Метод для расчета рейтинга произведения."""
+        return self.reviews.aggregate(
+            Avg('score', output_field=IntegerField()))['score__avg']
 
 
 class GenreTitle(models.Model):

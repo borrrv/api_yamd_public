@@ -21,12 +21,14 @@ from .serializers import (RegistrationSerializer, TokenSerializer,
 from .permissions import (IsAdmin, AdminOrReadOnly,
                           IsAdminOrModeratorOrOwnerOrReadOnly)
 from reviews.models import User, Review, Title, Genre, Category
+from .filters import TitleFilter
 
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def registraions(request):
     """Регистрация пользователя"""
+
     user = request.user
     serializer = RegistrationSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
@@ -49,6 +51,7 @@ def registraions(request):
 @permission_classes([AllowAny])
 def get_token(request):
     """Получение токена"""
+
     serializer = TokenSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     username = serializer.validated_data['username']
@@ -63,6 +66,8 @@ def get_token(request):
 
 
 class UsersViewSet(viewsets.ModelViewSet):
+    """Viewset для модели User и UserSerializer."""
+
     lookup_field = 'username'
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -140,17 +145,13 @@ class TitleViewSet(viewsets.ModelViewSet):
                 .order_by('name'))
     serializer_class = TitleSerializer
     filter_backends = (DjangoFilterBackend,)
-    filterset_fields = (
-        'category__slug',
-        'genres__slug',
-        'name',
-        'year'
-    )
+    filterset_class = TitleFilter
 
     permission_classes = (AdminOrReadOnly,)
 
     def get_serializer_class(self):
-        if self.action == 'list':
+        """Переопределение класса сериализатора для методов retrieve, list."""
+        if self.action in ('retrieve', 'list'):
             return TitleListSerializer
         return TitleSerializer
 

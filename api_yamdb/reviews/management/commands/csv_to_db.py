@@ -1,6 +1,7 @@
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 import csv
-from reviews.models import Genre, Title, Category, Review, GenreTitle, User, Comment
+from reviews.models import (Genre, Title, Category,
+                            Review, GenreTitle, User, Comment)
 
 
 MODELS_FILES = {
