@@ -2,6 +2,7 @@ from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
+from django.db.models import Avg
 
 from rest_framework import filters
 from rest_framework import viewsets
@@ -17,14 +18,17 @@ from .serializers import (RegistrationSerializer, TokenSerializer,
                           ReviewSerializer, TitleSerializer,
                           UserEditSerializer, UserSerializer,
                           CategorySerializer, TitleListSerializer)
-from .permissions import IsAdmin
+from .permissions import (IsAdmin, AdminOrReadOnly,
+                          IsAdminOrModeratorOrOwnerOrReadOnly)
 from reviews.models import User, Review, Title, Genre, Category
+from .filters import TitleFilter
 
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def registraions(request):
     """Регистрация пользователя"""
+
     user = request.user
     serializer = RegistrationSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
@@ -47,6 +51,7 @@ def registraions(request):
 @permission_classes([AllowAny])
 def get_token(request):
     """Получение токена"""
+
     serializer = TokenSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     username = serializer.validated_data['username']
@@ -61,6 +66,8 @@ def get_token(request):
 
 
 class UsersViewSet(viewsets.ModelViewSet):
+    """Viewset для модели User и UserSerializer."""
+
     lookup_field = 'username'
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -94,20 +101,20 @@ class CommentViewSet(viewsets.ModelViewSet):
     """Viewset для модели Comment и CommentSerializer."""
 
     serializer_class = CommentSerializer
-    permission_classes = []
+    permission_classes = [IsAdminOrModeratorOrOwnerOrReadOnly]
 
     def get_queryset(self):
         """Переопределение метода get_queryset для CommentViewSet."""
 
         review = get_object_or_404(Review, pk=self.kwargs.get('review_id'))
-        return review.comments
+        return review.comments.all()
 
     def perform_create(self, serializer):
         """Переопределение метода create для CommentViewSet."""
 
         title_id = self.kwargs.get('title_id')
         review_id = self.kwargs.get('review_id')
-        review = get_object_or_404(Review, id=review_id, title=title_id)
+        review = get_object_or_404(Review, pk=review_id, title=title_id)
         serializer.save(author=self.request.user, review=review)
 
 
@@ -115,39 +122,36 @@ class ReviewViewSet(viewsets.ModelViewSet):
     """Viewset для модели Review и ReviewSerializer."""
 
     serializer_class = ReviewSerializer
-    permission_classes = []
+    permission_classes = [IsAdminOrModeratorOrOwnerOrReadOnly]
 
     def get_queryset(self):
         """Переопределение метода get_queryset для ReviewViewSet."""
 
-        title = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
-        return title.reviews
+        title = get_object_or_404(Title, pk=self.kwargs.get("title_id"))
+        return title.reviews.all()
 
     def perform_create(self, serializer):
         """Переопределение метода create для ReviewtViewSet."""
 
         title_id = self.kwargs.get('title_id')
-        title = get_object_or_404(Title, id=title_id)
+        title = get_object_or_404(Title, pk=title_id)
         serializer.save(author=self.request.user, title=title)
 
 
 class TitleViewSet(viewsets.ModelViewSet):
     """Viewset для модели Title."""
 
-    queryset = Title.objects.all()
+    queryset = (Title.objects.all().annotate(_rating=Avg('reviews__score'))
+                .order_by('name'))
     serializer_class = TitleSerializer
     filter_backends = (DjangoFilterBackend,)
-    filterset_fields = (
-        'category__slug',
-        'genres__slug',
-        'name',
-        'year'
-    )
+    filterset_class = TitleFilter
 
-    permission_classes = ()
+    permission_classes = (AdminOrReadOnly,)
 
     def get_serializer_class(self):
-        if self.action == 'list':
+        """Переопределение класса сериализатора для методов retrieve, list."""
+        if self.action in ('retrieve', 'list'):
             return TitleListSerializer
         return TitleSerializer
 
@@ -165,7 +169,7 @@ class GenreViewSet(ListReadCreateDestroy):
     serializer_class = GenreSerializer
     lookup_field = 'slug'
     filter_backends = (filters.SearchFilter,)
-    permission_classes = ()
+    permission_classes = (AdminOrReadOnly,)
     search_fields = ('name',)
 
 
@@ -174,7 +178,7 @@ class CategoriesViewSet(ListReadCreateDestroy):
 
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = ()
+    permission_classes = (AdminOrReadOnly,)
     lookup_field = 'slug'
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)

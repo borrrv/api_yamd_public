@@ -1,12 +1,13 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.db.models import Avg
 from django.core.validators import MaxValueValidator, MinValueValidator
-
-from .validators import username_validate
+from django.db.models import IntegerField
 
 
 class User(AbstractUser):
     """Модель пользователя"""
+
     ADMIN = 'admin'
     MODERATOR = 'moderator'
     USER = 'user'
@@ -29,8 +30,7 @@ class User(AbstractUser):
         'Имя пользователя',
         max_length=100,
         null=True,
-        unique=True,
-        validators=[username_validate]
+        unique=True
     )
 
     @property
@@ -46,7 +46,8 @@ class User(AbstractUser):
         return self.role == 'admin' or self.is_staff
 
     class Meta:
-        """Сортировка и проверка на уникальность username и email"""
+        """Сортировка и проверка на уникальность username и email."""
+
         ordering = ['username']
         constraints = [
             models.UniqueConstraint(
@@ -56,29 +57,48 @@ class User(AbstractUser):
         ]
 
     def __str__(self):
+        """Метод str модели User."""
         return self.username
 
 
 class Genre(models.Model):
     """Модель жанров."""
+
     name = models.CharField(max_length=20)
     slug = models.SlugField(unique=True)
 
     def __str__(self):
+        """Метод str модели Genre."""
         return self.name
+
+    class Meta:
+        """Meta настройки модели Genre."""
+
+        verbose_name = 'Жанр'
+        verbose_name_plural = 'Жанры'
+        ordering = ['name']
 
 
 class Category(models.Model):
     """Модель категорий."""
+
     name = models.CharField(max_length=256)
     slug = models.SlugField(unique=True, max_length=50)
 
     def __str__(self):
+        """Метод str модели Category."""
         return self.name
+
+    class Meta:
+        """Meta настройки модели Category."""
+        verbose_name = 'Категория'
+        verbose_name_plural = 'Категории'
+        ordering = ['name']
 
 
 class Title(models.Model):
     """Модель произведений."""
+
     name = models.CharField(max_length=100)
     year = models.IntegerField()
     category = models.ForeignKey(
@@ -88,7 +108,7 @@ class Title(models.Model):
         related_name='category',
         verbose_name='категория'
     )
-    genres = models.ManyToManyField(
+    genre = models.ManyToManyField(
         Genre,
         through='GenreTitle'
     )
@@ -99,6 +119,10 @@ class Title(models.Model):
     )
 
     class Meta:
+        """Meta настройки модели Title."""
+
+        verbose_name = 'Произведение'
+        verbose_name_plural = 'Произведения'
         constraints = [
             models.UniqueConstraint(
                 fields=['name', 'year'],
@@ -106,13 +130,20 @@ class Title(models.Model):
             )
         ]
 
-
     def __str__(self):
+        """Метод str модели Title."""
         return self.name
+
+    @property
+    def rating(self):
+        """Метод для расчета рейтинга произведения."""
+        return self.reviews.aggregate(
+            Avg('score', output_field=IntegerField()))['score__avg']
 
 
 class GenreTitle(models.Model):
     """Модель произведение-жанр."""
+
     title = models.ForeignKey(Title, on_delete=models.CASCADE)
     genre = models.ForeignKey(
         Genre,
