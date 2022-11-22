@@ -8,6 +8,8 @@ from rest_framework.exceptions import ValidationError
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
+    """Сериалайзер для регистрации."""
+
     username = serializers.CharField(
         max_length=100,
         validators=[UniqueValidator(queryset=User.objects.all())])
@@ -15,6 +17,8 @@ class RegistrationSerializer(serializers.ModelSerializer):
         validators=[UniqueValidator(queryset=User.objects.all())])
 
     def validate_username(self, value):
+        """Проверка на запрещенный username - me."""
+
         username = value.lower()
         if username == 'me':
             raise serializers.ValidationError(f"Недопустимо имя '{username}'")
@@ -26,11 +30,15 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
 
 class TokenSerializer(serializers.Serializer):
+    """Сериалайзер для токена."""
+
     username = serializers.CharField()
     confirmation_code = serializers.CharField()
 
 
 class UserSerializer(serializers.ModelSerializer):
+    """Сериалайзер для модели User."""
+
     username = serializers.CharField(
         max_length=100,
         validators=[UniqueValidator(queryset=User.objects.all())])
@@ -38,6 +46,8 @@ class UserSerializer(serializers.ModelSerializer):
         validators=[UniqueValidator(queryset=User.objects.all())])
 
     class Meta:
+        """Meta настройки сериалайзера для модели User."""
+
         model = User
         fields = ('first_name', 'last_name',
                   'username', 'bio',
@@ -45,7 +55,11 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class UserEditSerializer(serializers.ModelSerializer):
+    """Сериалайзер для модели User."""
+
     class Meta:
+        """Meta настройки UserEditSerializer для модели User."""
+
         fields = ('first_name', 'last_name',
                   'username', 'bio',
                   'role', 'email')
@@ -83,6 +97,7 @@ class ReviewSerializer(serializers.ModelSerializer):
     )
 
     def validate(self, data):
+        """Валидация для сериализатора Review."""
         request = self.context['request']
         author = request.user
         title_id = self.context['view'].kwargs.get('title_id')
@@ -118,6 +133,8 @@ class TitleSerializer(serializers.ModelSerializer):
         return obj.rating
 
     class Meta:
+        """Meta настройки сериалайзера для модели Title."""
+
         fields = ('id', 'name', 'year', 'category',
                   'genre', 'description', 'rating')
         model = Title
@@ -129,12 +146,14 @@ class TitleSerializer(serializers.ModelSerializer):
         ]
 
     def validate_year(self, value):
+        """Валидация года для TitleSerializer."""
         year = dt.date.today().year
         if year < value:
             raise serializers.ValidationError('Проверьте год!')
         return value
 
     def get_rating(self, obj):
+        """Вызов метода для подсчета рейтинга."""
         return obj.rating
 
 
@@ -142,6 +161,8 @@ class GenreSerializer(serializers.ModelSerializer):
     """Сериализатор для модели Genre."""
 
     class Meta:
+        """Meta настройки сериалайзера для модели Genre."""
+
         fields = ('name', 'slug')
         model = Genre
 
@@ -150,15 +171,10 @@ class CategorySerializer(serializers.ModelSerializer):
     """Сериализатор для модели Category."""
 
     class Meta:
+        """Meta настройки сериалайзера для модели Category."""
+
         fields = ('name', 'slug')
         model = Category
-
-    '''
-    def validate_slug(self, value):
-        if re.fullmatch(r'^[-a-zA-Z0-9_]+$', value):
-            raise serializers.ValidationError('Поле slug должно сотоять из букв и цифр!')
-        return value
-    '''
 
 
 class TitleListSerializer(serializers.ModelSerializer):
@@ -169,9 +185,12 @@ class TitleListSerializer(serializers.ModelSerializer):
     rating = serializers.SerializerMethodField()
 
     def get_rating(self, obj):
+        """Вызов метода для подсчета рейтинга."""
         return obj.rating
 
     class Meta:
+        """Meta настройки сериалайзера списка для модели Title."""
+
         fields = ('id', 'name', 'year', 'rating',
                   'description', 'genre', 'category')
         model = Title

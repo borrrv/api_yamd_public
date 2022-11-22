@@ -28,6 +28,7 @@ from .filters import TitleFilter
 @permission_classes([AllowAny])
 def registraions(request):
     """Регистрация пользователя"""
+
     user = request.user
     serializer = RegistrationSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
@@ -50,6 +51,7 @@ def registraions(request):
 @permission_classes([AllowAny])
 def get_token(request):
     """Получение токена"""
+
     serializer = TokenSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     username = serializer.validated_data['username']
@@ -64,6 +66,8 @@ def get_token(request):
 
 
 class UsersViewSet(viewsets.ModelViewSet):
+    """Viewset для модели User и UserSerializer."""
+
     lookup_field = 'username'
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -146,6 +150,7 @@ class TitleViewSet(viewsets.ModelViewSet):
     permission_classes = (AdminOrReadOnly,)
 
     def get_serializer_class(self):
+        """Переопределение класса сериализатора для методов retrieve, list."""
         if self.action in ('retrieve', 'list'):
             return TitleListSerializer
         return TitleSerializer

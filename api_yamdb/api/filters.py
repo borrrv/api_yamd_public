@@ -3,6 +3,8 @@ from reviews.models import Title
 
 
 class TitleFilter(rest_framework.FilterSet):
+    """Фильтр для TitleViewSet."""
+
     name = rest_framework.CharFilter(
         field_name='name',
         lookup_expr='icontains'
@@ -17,5 +19,7 @@ class TitleFilter(rest_framework.FilterSet):
     )
 
     class Meta:
+        """Meta настройки фильтра для TitleViewSet."""
+
         model = Title
         fields = ['name', 'year', 'genre', 'category']

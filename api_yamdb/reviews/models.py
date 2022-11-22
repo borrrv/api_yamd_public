@@ -45,7 +45,8 @@ class User(AbstractUser):
         return self.role == 'admin' or self.is_staff
 
     class Meta:
-        """Сортировка и проверка на уникальность username и email"""
+        """Сортировка и проверка на уникальность username и email."""
+
         ordering = ['username']
         constraints = [
             models.UniqueConstraint(
@@ -55,6 +56,7 @@ class User(AbstractUser):
         ]
 
     def __str__(self):
+        """Метод str модели User."""
         return self.username
 
 
@@ -65,9 +67,12 @@ class Genre(models.Model):
     slug = models.SlugField(unique=True)
 
     def __str__(self):
+        """Метод str модели Genre."""
         return self.name
 
     class Meta:
+        """Meta настройки модели Genre."""
+
         verbose_name = 'Жанр'
         verbose_name_plural = 'Жанры'
         ordering = ['name']
@@ -80,9 +85,11 @@ class Category(models.Model):
     slug = models.SlugField(unique=True, max_length=50)
 
     def __str__(self):
+        """Метод str модели Category."""
         return self.name
 
     class Meta:
+        """Meta настройки модели Category."""
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
         ordering = ['name']
@@ -111,6 +118,8 @@ class Title(models.Model):
     )
 
     class Meta:
+        """Meta настройки модели Title."""
+
         verbose_name = 'Произведение'
         verbose_name_plural = 'Произведения'
         constraints = [
@@ -121,10 +130,12 @@ class Title(models.Model):
         ]
 
     def __str__(self):
+        """Метод str модели Title."""
         return self.name
 
     @property
     def rating(self):
+        """Метод для расчета рейтинга произведения."""
         return self.reviews.aggregate(Avg('score'))['score__avg']
 
 
