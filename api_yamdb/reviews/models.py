@@ -2,7 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.db.models import Avg
 from django.core.validators import MaxValueValidator, MinValueValidator
-
+from django.db.models import IntegerField
 
 class User(AbstractUser):
     """Модель пользователя"""
@@ -136,7 +136,7 @@ class Title(models.Model):
     @property
     def rating(self):
         """Метод для расчета рейтинга произведения."""
-        return self.reviews.aggregate(Avg('score'))['score__avg']
+        return self.reviews.aggregate(Avg('score', output_field=IntegerField()))['score__avg']
 
 
 class GenreTitle(models.Model):

@@ -184,7 +184,7 @@ class TitleListSerializer(serializers.ModelSerializer):
     category = CategorySerializer()
     rating = serializers.SerializerMethodField()
 
-    def get_rating(self, obj):
+    def get_rating(self, obj) -> int:
         """Вызов метода для подсчета рейтинга."""
         return obj.rating
 
