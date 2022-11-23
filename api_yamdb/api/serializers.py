@@ -85,11 +85,6 @@ class CommentSerializer(serializers.ModelSerializer):
 class ReviewSerializer(serializers.ModelSerializer):
     """Сериалайзер для модели Review."""
 
-    title = serializers.SlugRelatedField(
-        slug_field='name',
-        read_only=True
-    )
-
     author = serializers.SlugRelatedField(
         default=serializers.CurrentUserDefault(),
         slug_field='username',
@@ -98,20 +93,23 @@ class ReviewSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         """Валидация для сериализатора Review."""
-        request = self.context['request']
-        author = request.user
+
+        if self.context['request'].method != 'POST':
+            return data
+
+        author = self.context['request'].user
         title_id = self.context['view'].kwargs.get('title_id')
         title = get_object_or_404(Title, pk=title_id)
-        if request.method == 'POST':
-            if Review.objects.filter(title=title, author=author).exists():
-                raise ValidationError('Вы не можете добавлять несколько '
-                                      'отзывов на произведение')
+
+        if Review.objects.filter(title=title, author=author).exists():
+            raise ValidationError('Вы не можете добавлять несколько '
+                                  'отзывов на произведение')
         return data
 
     class Meta:
         """Meta настройки сериалайзера для модели Review."""
 
-        fields = ('title', 'author', 'text', 'score', 'pub_date', 'id')
+        fields = ('author', 'text', 'score', 'pub_date', 'id')
         model = Review
 
 
@@ -148,8 +146,10 @@ class TitleSerializer(serializers.ModelSerializer):
     def validate_year(self, value):
         """Валидация года для TitleSerializer."""
         year = dt.date.today().year
+
         if year < value:
             raise serializers.ValidationError('Проверьте год!')
+            
         return value
 
     def get_rating(self, obj):

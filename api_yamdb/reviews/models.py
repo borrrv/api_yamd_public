@@ -168,7 +168,7 @@ class Review(models.Model):
         verbose_name='Автор'
     )
     text = models.TextField(verbose_name='Текст Отзыва')
-    score = models.IntegerField(
+    score = models.PositiveSmallIntegerField(
         verbose_name='Рейтинг',
         validators=[
             MinValueValidator(1, 'Рейтинг выставляется по 10 бальной шкале.'),
@@ -176,7 +176,8 @@ class Review(models.Model):
         ])
     pub_date = models.DateTimeField(
         auto_now_add=True,
-        verbose_name='Дата публикации')
+        verbose_name='Дата публикации',
+        db_index=True)
 
     class Meta:
         """Meta модели Reviews.
