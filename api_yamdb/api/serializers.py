@@ -129,9 +129,6 @@ class TitleSerializer(serializers.ModelSerializer):
     )
     rating = serializers.SerializerMethodField()
 
-    def get_rating(self, obj):
-        return obj.rating
-
     class Meta:
         """Meta настройки сериалайзера для модели Title."""
 
