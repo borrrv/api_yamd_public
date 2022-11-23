@@ -87,7 +87,7 @@ class TitleSerializer(serializers.ModelSerializer):
 
         if year < value:
             raise serializers.ValidationError('Проверьте год!')
-            
+
         return value
 
     def get_rating(self, obj):
