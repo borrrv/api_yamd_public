@@ -64,12 +64,8 @@ class User(AbstractUser):
 class Genre(models.Model):
     """Модель жанров."""
 
-    name = models.CharField(max_length=20)
-    slug = models.SlugField(unique=True)
-
-    def __str__(self):
-        """Метод str модели Genre."""
-        return self.name
+    name = models.CharField(max_length=20, verbose_name='название жанра')
+    slug = models.SlugField(unique=True, verbose_name='ссылка')
 
     class Meta:
         """Meta настройки модели Genre."""
@@ -78,16 +74,23 @@ class Genre(models.Model):
         verbose_name_plural = 'Жанры'
         ordering = ['name']
 
+    def __str__(self):
+        """Метод str модели Genre."""
+        return self.name
+
 
 class Category(models.Model):
     """Модель категорий."""
 
-    name = models.CharField(max_length=256)
-    slug = models.SlugField(unique=True, max_length=50)
-
-    def __str__(self):
-        """Метод str модели Category."""
-        return self.name
+    name = models.CharField(
+        max_length=256,
+        verbose_name='Название категории'
+    )
+    slug = models.SlugField(
+        unique=True,
+        max_length=50,
+        verbose_name='Ссылка'
+    )
 
     class Meta:
         """Meta настройки модели Category."""
@@ -95,27 +98,35 @@ class Category(models.Model):
         verbose_name_plural = 'Категории'
         ordering = ['name']
 
+    def __str__(self):
+        """Метод str модели Category."""
+        return self.name
+
 
 class Title(models.Model):
     """Модель произведений."""
 
-    name = models.CharField(max_length=100)
-    year = models.IntegerField()
+    name = models.CharField(
+        max_length=100,
+        verbose_name='Название произведения'
+    )
+    year = models.IntegerField(verbose_name='Год выпуска')
     category = models.ForeignKey(
         Category,
         on_delete=models.SET_NULL,
         null=True,
         related_name='category',
-        verbose_name='категория'
+        verbose_name='Категория'
     )
     genre = models.ManyToManyField(
         Genre,
-        through='GenreTitle'
+        through='GenreTitle',
+        verbose_name='Жанр'
     )
     description = models.TextField(
         null=True,
         blank=True,
-        verbose_name='описание'
+        verbose_name='Описание'
     )
 
     class Meta:
@@ -144,11 +155,16 @@ class Title(models.Model):
 class GenreTitle(models.Model):
     """Модель произведение-жанр."""
 
-    title = models.ForeignKey(Title, on_delete=models.CASCADE)
+    title = models.ForeignKey(
+        Title,
+        on_delete=models.CASCADE,
+        verbose_name='Произведение'
+    )
     genre = models.ForeignKey(
         Genre,
         related_name='genre',
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        verbose_name='Жанр'
     )
 
 
